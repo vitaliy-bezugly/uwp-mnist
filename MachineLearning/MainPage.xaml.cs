@@ -10,16 +10,19 @@ using Windows.UI.Xaml.Media.Imaging;
 using System.Linq;
 using Microsoft.AI.MachineLearning;
 using Windows.Foundation;
+using System.Reflection;
+using MachineLearning.Helpers;
 
 namespace MachineLearning
 {
     public sealed partial class MainPage : Page
     {
-        private mnistModel modelGen;
+        private mnistModel mnistModelGen;
+        private StringLengthModel stringLengthModelGen;
         private mnistInput mnistInput = new mnistInput();
         private mnistOutput mnistOutput;
         //private LearningModelSession    session;
-        private Helper helper = new Helper();
+        private MnistHelper helper = new MnistHelper();
         RenderTargetBitmap renderBitmap = new RenderTargetBitmap();
 
         public MainPage()
@@ -37,14 +40,23 @@ namespace MachineLearning
                     IgnoreTilt = true,
                 }
             );
-            LoadModelAsync();
+
+            LoadMnistModelAsync();
+            LoadStringLengthModelAsync();
         }
 
-        private async Task LoadModelAsync()
+        private async Task LoadMnistModelAsync()
         {
             //Load a machine learning model
             StorageFile modelFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri($"ms-appx:///Assets/mnist.onnx"));
-            modelGen = await mnistModel.CreateFromStreamAsync(modelFile as IRandomAccessStreamReference);
+            mnistModelGen = await mnistModel.CreateFromStreamAsync(modelFile as IRandomAccessStreamReference);
+        }
+
+        private async Task LoadStringLengthModelAsync()
+        {
+            //Load a machine learning model
+            StorageFile modelFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri($"ms-appx:///Assets/string_length.onnx"));
+            stringLengthModelGen = await StringLengthModel.CreateFromStreamAsync(modelFile as IRandomAccessStreamReference);
         }
 
         private async void recognizeButton_Click(object sender, RoutedEventArgs e)
@@ -54,7 +66,7 @@ namespace MachineLearning
             mnistInput.Input3 = ImageFeatureValue.CreateFromVideoFrame(vf);
 
             //Evaluate the model
-            mnistOutput = await modelGen.EvaluateAsync(mnistInput);
+            mnistOutput = await mnistModelGen.EvaluateAsync(mnistInput);
 
             //Convert output to datatype
             IReadOnlyList<float> vectorImage = mnistOutput.Plus214_Output_0.GetAsVectorView();
@@ -71,6 +83,25 @@ namespace MachineLearning
         {
             inkCanvas.InkPresenter.StrokeContainer.Clear();
             numberLabel.Text = "";
+        }
+
+        private async void PredictButton_Click(object sender, RoutedEventArgs e)
+        {
+            var stringHelper = new StringLengthHelper();
+
+            // Prepare your input string
+            var stringToCheck = InputTextBox.Text;
+            var tensorLength = await stringHelper.GetStringTensor(stringToCheck);
+
+            // Run the model
+            var input = new StringLengthInput() { Length = tensorLength };
+            var output = await stringLengthModelGen.EvaluateAsync(input);
+
+            // Validate the output
+            bool isValid = await stringHelper.IsStringLengthValid(output.Result);
+
+            // Display the results
+            OutputTextBlock.Text = isValid ? "Valid" : "Invalid";
         }
     }
 }

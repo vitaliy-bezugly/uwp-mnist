@@ -7,7 +7,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace MachineLearning
 {
-    public class Helper
+    public class MnistHelper
     {
         VideoFrame cropped_vf = null;
 
