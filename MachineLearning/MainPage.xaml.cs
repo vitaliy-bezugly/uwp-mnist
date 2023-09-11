@@ -12,6 +12,7 @@ using Microsoft.AI.MachineLearning;
 using Windows.Foundation;
 using System.Reflection;
 using MachineLearning.Helpers;
+using MachineLearning.models;
 
 namespace MachineLearning
 {
@@ -19,6 +20,7 @@ namespace MachineLearning
     {
         private mnistModel mnistModelGen;
         private StringLengthModel stringLengthModelGen;
+        private IpRangeModel ipRangeModelGen;
         private mnistInput mnistInput = new mnistInput();
         private mnistOutput mnistOutput;
         //private LearningModelSession    session;
@@ -43,6 +45,7 @@ namespace MachineLearning
 
             LoadMnistModelAsync();
             LoadStringLengthModelAsync();
+            LoadIpRangeModelAsync();
         }
 
         private async Task LoadMnistModelAsync()
@@ -57,6 +60,13 @@ namespace MachineLearning
             //Load a machine learning model
             StorageFile modelFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri($"ms-appx:///Assets/string_length.onnx"));
             stringLengthModelGen = await StringLengthModel.CreateFromStreamAsync(modelFile as IRandomAccessStreamReference);
+        }
+
+        private async Task LoadIpRangeModelAsync()
+        {
+            //Load a machine learning model
+            StorageFile modelFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri($"ms-appx:///Assets/ip_validation.onnx"));
+            ipRangeModelGen = await IpRangeModel.CreateFromStreamAsync(modelFile as IRandomAccessStreamReference);
         }
 
         private async void recognizeButton_Click(object sender, RoutedEventArgs e)
@@ -87,15 +97,15 @@ namespace MachineLearning
 
         private async void PredictButton_Click(object sender, RoutedEventArgs e)
         {
-            var stringHelper = new StringLengthHelper();
+            var stringHelper = new IpRangeHelper();
 
             // Prepare your input string
             var stringToCheck = InputTextBox.Text;
-            var tensorLength = await stringHelper.GetStringTensor(stringToCheck);
+            var tensorData = await stringHelper.GetStringTensor(stringToCheck);
 
             // Run the model
-            var input = new StringLengthInput() { Length = tensorLength };
-            var output = await stringLengthModelGen.EvaluateAsync(input);
+            var input = new IpRangeInput() { Data = tensorData };
+            var output = await ipRangeModelGen.EvaluateAsync(input);
 
             // Validate the output
             bool isValid = await stringHelper.IsStringLengthValid(output.Result);

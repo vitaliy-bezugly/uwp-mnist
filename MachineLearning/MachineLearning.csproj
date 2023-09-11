@@ -119,11 +119,13 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\IpRangeHelper.cs" />
     <Compile Include="Helpers\MnistHelper.cs" />
     <Compile Include="Helpers\StringLengthHelper.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="models\IpRangeModel.cs" />
     <Compile Include="models\mnist.cs" />
     <Compile Include="models\StringLength.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -166,6 +168,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\string_length.onnx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\ip_validation.onnx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
