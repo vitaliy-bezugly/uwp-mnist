@@ -7,10 +7,12 @@ namespace MachineLearning.Helpers
 {
     internal class IpRangeHelper
     {
+        private const int InputSize = 18;
+
         public Task<TensorInt64Bit> GetStringTensor(string inputString)
         {
             var tensorData = ConvertIpRangeToNumericList(inputString);
-            return Task.FromResult(TensorInt64Bit.CreateFromArray(new long[] { 1, 15 }, tensorData));
+            return Task.FromResult(TensorInt64Bit.CreateFromArray(new long[] { 1, InputSize }, tensorData));
         }
 
         public Task<bool> IsStringLengthValid(TensorInt64Bit result)
@@ -42,7 +44,7 @@ namespace MachineLearning.Helpers
                 output.AddRange(Enumerable.Repeat(-1, missingOctets));
             }
 
-            for (int i = 0; i < 15; ++i)
+            for (int i = 0; i < InputSize; ++i)
             {
                 if(i >= output.Count)
                 {
